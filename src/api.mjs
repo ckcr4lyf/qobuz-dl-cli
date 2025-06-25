@@ -11,6 +11,11 @@ export class QobuzDlAPI {
         this.apiBase = apiBase;
     }
 
+    /**
+     * 
+     * @param {string} albumId 
+     * @returns {Promise<import("./api").AlbumInfo>}
+     */
     async getAlbumInfo(albumId){
         const response = await fetch(`${this.apiBase}/api/get-album?album_id=${albumId}`);
         return response.json();
@@ -20,6 +25,7 @@ export class QobuzDlAPI {
      * 
      * @param {string} trackId 
      * @param {string} quality FLAC=27
+     * @returns {import("./api").TrackDownloadInfo}
      */
     async getTrackDownloadLink(trackId, quality){
         const response = await fetch(`${this.apiBase}/api/download-music?track_id=${trackId}&quality=${quality}`)
