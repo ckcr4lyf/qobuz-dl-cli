@@ -1,0 +1,23 @@
+{
+  "name": "qobuz-dl-cli",
+  "version": "0.0.1",
+  "description": "CLI downloader for Qobuz-DL instances",
+  "main": "bin/index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ckcr4lyf/qobuz-dl-cli.git"
+  },
+  "keywords": [
+    "qobuz",
+    "ffmpeg"
+  ],
+  "author": "Raghu Saxena",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/ckcr4lyf/qobuz-dl-cli/issues"
+  },
+  "homepage": "https://github.com/ckcr4lyf/qobuz-dl-cli#readme"
+}
