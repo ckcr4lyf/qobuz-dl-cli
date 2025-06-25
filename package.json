@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/ckcr4lyf/qobuz-dl-cli/issues"
   },
-  "homepage": "https://github.com/ckcr4lyf/qobuz-dl-cli#readme"
+  "homepage": "https://github.com/ckcr4lyf/qobuz-dl-cli#readme",
+  "dependencies": {
+    "@ckcr4lyf/logger": "^0.0.7"
+  }
 }
