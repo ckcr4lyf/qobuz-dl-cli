@@ -2,10 +2,19 @@ import fs from 'node:fs';
 import { Logger, LOGLEVEL } from '@ckcr4lyf/logger'
 
 import { QobuzDlAPI } from "./api.mjs"
+import { encodeToAlac } from './ffmpeg.mjs';
 
 export const getLogger = () => {
     return new Logger({ loglevel: LOGLEVEL.INFO });
 }
+
+/**
+ * 27 -> FLAC 24bit 192kHZ
+ * 7 -> FLAC 24bit 96kHz
+ * 6 -> FLAC 16bit 44.1kHZ
+ * 5 -> MP3 320kbps
+ */
+const QUALITY = 6;
 
 /**
  * 
@@ -25,23 +34,43 @@ export const downloadAlbum = async (albumId, api) => {
     fs.writeFileSync(albumArtFilename, Buffer.from(albumArt));
     logger.info(`Wrote album art to ${albumArtFilename}`);
 
-    for (const track of albumInfo.data.tracks.items){
-        logger.info(`Going to get download URL for track #${track.track_number} (${track.title})`);
-        const trackDownloadUrl = await api.getTrackDownloadLink(track.id, 27);
-        
-        logger.info(`Downloading track...`);
-        const trackResponse = await fetch(trackDownloadUrl.data.url);
-        const trackData = await trackResponse.arrayBuffer();
-        const trackFilename = `${track.id}.flac`;
-        fs.writeFileSync(trackFilename, Buffer.from(trackData));
-        logger.info(`Downloaded file to ${trackFilename}`);
+    logger.info(`going to download tracks in parallel...`)
+    const trackPromises = await Promise.all(albumInfo.data.tracks.items.map(track => downloadTrack(albumInfo, albumArtFilename, track, api)));
 
-        const metadataFilename = `${track.id}.txt`;
-        const metadata = generateFfmpegMetadata(albumInfo, track);
-        fs.writeFileSync(metadataFilename, metadata)
-        logger.info(`Wrote metadata to ${metadataFilename}`);
-        break;
-    }
+    logger.info(`we cooked!`);
+}
+
+/**
+ * 
+ * @param {import('./api').Track} track 
+ * @param {QobuzDlAPI} api 
+ */
+export const downloadTrack = async(albumInfo, albumArtFilename, track, api) => {
+    const logger = getLogger();
+    logger.info(`[${track.id}] Going to get download URL for track #${track.track_number} (${track.title})`);
+    const trackDownloadUrl = await api.getTrackDownloadLink(track.id, QUALITY);
+    
+    logger.info(`[${track.id}] Downloading track...`);
+    const trackResponse = await fetch(trackDownloadUrl.data.url);
+    const trackData = await trackResponse.arrayBuffer();
+    const trackFilename = `${track.id}_${QUALITY}.flac`;
+    fs.writeFileSync(trackFilename, Buffer.from(trackData));
+    logger.info(`[${track.id}] Downloaded file to ${trackFilename}`);
+
+    const metadataFilename = `${track.id}.txt`;
+    const metadata = generateFfmpegMetadata(albumInfo, track);
+    fs.writeFileSync(metadataFilename, metadata)
+    logger.info(`[${track.id}] Wrote metadata to ${metadataFilename}`);
+
+    await encodeToAlac({
+        coverArt: albumArtFilename,
+        flac: trackFilename,
+        metadata: metadataFilename,
+        trackName: track.title,
+        trackNumber: track.track_number,
+    });
+
+    logger.info(`[${track.id}] encoded to ALAC`);
 }
 
 /**
