@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { Logger, LOGLEVEL } from '@ckcr4lyf/logger'
 
 import { QobuzDlAPI } from "./api.mjs"
-import { encodeToAlac } from './ffmpeg.mjs';
+import { muxToDisk } from './ffmpeg.mjs';
 import path from 'node:path';
 
 export const getLogger = () => {
@@ -21,9 +21,10 @@ const QUALITY = 6;
 /**
  * 
  * @param {string} albumId 
+ * @param {'ALAC' | 'FLAC'}
  * @param {QobuzDlAPI} api 
  */
-export const downloadAlbum = async (albumId, api) => {
+export const downloadAlbum = async (albumId, format, api) => {
     const logger = getLogger();
 
     logger.info(`Going to get album info from Qobuz-DL instance (Album ID: ${albumId})`);
@@ -38,11 +39,11 @@ export const downloadAlbum = async (albumId, api) => {
 
     const albumFolder = createAlbumDirectory(albumInfo);
 
-    logger.info(`going to download tracks in parallel...`)
+    logger.info(`going to download tracks in parallel... (to ${format})`)
 
     // although node.js is single threaded, the track downloading is I/O bound (on internet) so can be done concurrently
     // for the muxing to m4a, we use spawn, so the underlying ffmpeg processes can adapt to the number of threads
-    const trackPromises = await Promise.all(albumInfo.data.tracks.items.map(track => downloadTrack(albumInfo, albumArtFilename, albumFolder, track, api)));
+    const trackPromises = await Promise.all(albumInfo.data.tracks.items.map(track => downloadTrack(albumInfo, albumArtFilename, albumFolder, format, track, api)));
 
     logger.info(`we cooked!`);
 }
@@ -52,7 +53,7 @@ export const downloadAlbum = async (albumId, api) => {
  * @param {import('./api').Track} track 
  * @param {QobuzDlAPI} api 
  */
-export const downloadTrack = async(albumInfo, albumArtFilename, albumFolder, track, api) => {
+export const downloadTrack = async(albumInfo, albumArtFilename, albumFolder, format, track, api) => {
     const logger = getLogger();
     logger.info(`[${track.id}] Going to get download URL for track #${track.track_number} (${track.title})`);
     const trackDownloadUrl = await api.getTrackDownloadLink(track.id, QUALITY);
@@ -69,13 +70,14 @@ export const downloadTrack = async(albumInfo, albumArtFilename, albumFolder, tra
     fs.writeFileSync(metadataFilename, metadata)
     logger.info(`[${track.id}] Wrote metadata to ${metadataFilename}`);
 
-    await encodeToAlac({
+    await muxToDisk({
         coverArt: albumArtFilename,
         flac: trackFilename,
         metadata: metadataFilename,
         trackName: track.title,
         trackNumber: track.track_number,
         albumFolder: albumFolder,
+        format: format,
     });
 
     logger.info(`[${track.id}] encoded to ALAC`);
