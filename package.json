@@ -2,7 +2,11 @@
   "name": "qobuz-dl-cli",
   "version": "0.0.1",
   "description": "CLI downloader for Qobuz-DL instances",
-  "main": "bin/index.mjs",
+  "preferGlobal": true,
+  "main": "./bin/index.mjs",
+  "bin": {
+    "qdc": "./bin/index.mjs"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

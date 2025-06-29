@@ -1,11 +1,13 @@
+#!/usr/bin/env node
+
 import { QobuzDlAPI } from "../src/api.mjs";
 import { downloadAlbum, getLogger } from "../src/utils.mjs";
 
-console.log(process.argv);
 const logger = getLogger();
 
 if (process.argv.length < 3){
   logger.warn(`Usage: qdc <album-id>`);
+  process.exit(-1);
 }
 
 // TBD: We should probably let the base url be configurable?!

@@ -4,4 +4,5 @@ export type TrackDetails = {
   coverArt: string;
   flac: string;
   metadata: string;
+  albumFolder: string;
 }
