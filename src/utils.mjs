@@ -70,7 +70,7 @@ export const downloadTrack = async(albumInfo, albumArtFilename, albumFolder, for
     fs.writeFileSync(metadataFilename, metadata)
     logger.info(`[${track.id}] Wrote metadata to ${metadataFilename}`);
 
-    await muxToDisk({
+    const finalFilename = await muxToDisk({
         coverArt: albumArtFilename,
         flac: trackFilename,
         metadata: metadataFilename,
@@ -80,7 +80,7 @@ export const downloadTrack = async(albumInfo, albumArtFilename, albumFolder, for
         format: format,
     });
 
-    logger.info(`[${track.id}] encoded to ALAC`);
+    logger.info(`[${track.id}] saved to disk at ${finalFilename}`);
 }
 
 /**

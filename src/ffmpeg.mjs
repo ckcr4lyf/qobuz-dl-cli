@@ -22,7 +22,7 @@ export const muxToDisk = async (trackDetails) => {
     })
 
     alac.on('close', () => {
-      resolve();
+      resolve(encodedFilename);
     })
   })
 }

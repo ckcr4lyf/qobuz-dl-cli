@@ -1,6 +1,6 @@
 {
   "name": "qobuz-dl-cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "CLI downloader for Qobuz-DL instances",
   "preferGlobal": true,
   "main": "./bin/index.mjs",
