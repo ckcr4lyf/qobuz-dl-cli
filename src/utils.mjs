@@ -39,6 +39,9 @@ export const downloadAlbum = async (albumId, api) => {
     const albumFolder = createAlbumDirectory(albumInfo);
 
     logger.info(`going to download tracks in parallel...`)
+
+    // although node.js is single threaded, the track downloading is I/O bound (on internet) so can be done concurrently
+    // for the muxing to m4a, we use spawn, so the underlying ffmpeg processes can adapt to the number of threads
     const trackPromises = await Promise.all(albumInfo.data.tracks.items.map(track => downloadTrack(albumInfo, albumArtFilename, albumFolder, track, api)));
 
     logger.info(`we cooked!`);
