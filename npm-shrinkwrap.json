@@ -10,6 +10,9 @@
       "license": "GPL-3.0",
       "dependencies": {
         "@ckcr4lyf/logger": "^0.0.7"
+      },
+      "bin": {
+        "qdc": "bin/index.mjs"
       }
     },
     "node_modules/@ckcr4lyf/logger": {
