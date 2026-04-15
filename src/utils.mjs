@@ -117,13 +117,14 @@ export const generateFfmpegMetadata = (albumInfo, trackInfo) => {
  * @param {import('./api').AlbumInfo} albumInfo 
  * @returns {string} The path to the created directory
  */
+export const sanitizeFilename = (name) => name.replace(/[<>:"/\\|?*']/g, '');
+
 export const createAlbumDirectory = (albumInfo) => {
     const artistName = albumInfo.data.artist.name;
     const albumName = albumInfo.data.title;
     const dirName = `${artistName} - ${albumName}`;
     
-    // Remove invalid characters for directory names
-    const sanitizedDirName = path.join(process.cwd(), dirName.replace(/[<>:"/\\|?*]/g, ''));
+    const sanitizedDirName = path.join(process.cwd(), sanitizeFilename(dirName));
     
     if (!fs.existsSync(sanitizedDirName)) {
         fs.mkdirSync(sanitizedDirName, { recursive: true });
